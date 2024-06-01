@@ -1,4 +1,3 @@
-
 import os
 import logging
 from functools import partial
@@ -17,12 +16,36 @@ from huggingface_hub import snapshot_download
 
 logging.basicConfig(level = logging.INFO)
 
+# Plugin architecture components
+class PluginBase:
+    """Base class for all plugins."""
+    def __init__(self, name):
+        self.name = name
+
+    def execute(self, *args, **kwargs):
+        raise NotImplementedError("Plugin must implement an execute method")
+
+class PluginManager:
+    """Manages plugins, allowing registration and execution."""
+    def __init__(self):
+        self.plugins = {}
+
+    def register_plugin(self, plugin):
+        if not issubclass(type(plugin), PluginBase):
+            raise ValueError("Plugin must be a subclass of PluginBase")
+        self.plugins[plugin.name] = plugin
+
+    def execute_plugin(self, name, *args, **kwargs):
+        if name not in self.plugins:
+            raise ValueError(f"Plugin {name} not registered")
+        return self.plugins[name].execute(*args, **kwargs)
 
 class Chat:
     def __init__(self, ):
         self.pretrain_models = {}
         self.normalizer = {}
         self.logger = logging.getLogger(__name__)
+        self.plugin_manager = PluginManager()  # Initialize the plugin manager
         
     def check_model(self, level = logging.INFO, use_decoder = False):
         not_finish = False
@@ -197,4 +220,3 @@ class Chat:
                     self.logger.log(logging.WARNING, f'Package nemo_text_processing not found! \
                         Run: conda install -c conda-forge pynini=2.1.5 && pip install nemo_text_processing')
                 self.normalizer[lang] = partial(Normalizer(input_case='cased', lang=lang).normalize, verbose=False, punct_post_process=True)
-
