@@ -21,7 +21,6 @@ This repo is for academic purposes only. It is intended for educational and rese
 
 ChatTTS is a powerful text-to-speech system. However, it is very important to utilize this technology responsibly and ethically. To limit the use of ChatTTS, we added a small amount of high-frequency noise during the training of the 40,000-hour model, and compressed the audio quality as much as possible using MP3 format, to prevent malicious actors from potentially using it for criminal purposes. At the same time, we have internally trained a detection model and plan to open-source it in the future.
 
-
 ---
 ## Usage
 
@@ -98,6 +97,23 @@ torchaudio.save("output3.wav", torch.from_numpy(audio_array_en[0]), 24000)
 
 [female speaker](https://github.com/2noise/ChatTTS/assets/130631963/f5dcdd01-1091-47c5-8241-c4f6aaaa8bbd)
 </details>
+
+## Plugin Support
+
+ChatTTS now includes support for plugins, allowing developers to extend its functionality with custom plugins. This new feature enables the integration of additional functionalities into ChatTTS, enhancing its versatility and adaptability for various applications.
+
+### Developing and Integrating Plugins
+
+To develop a plugin for ChatTTS, follow these steps:
+
+1. Create a new Python file for your plugin in the `ChatTTS/plugins` directory.
+2. Inherit from the `PluginBase` class defined in `ChatTTS/core.py`.
+3. Implement the `execute` method, where you define the functionality of your plugin.
+4. Register your plugin with the `PluginManager` using the `register_plugin` method.
+
+A sample plugin demonstrating this process is available in `ChatTTS/plugins/sample_plugin.py`.
+
+For more detailed instructions and examples, refer to the documentation in the `ChatTTS/plugins` directory.
 
 ---
 ## Roadmap
