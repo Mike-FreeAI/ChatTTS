@@ -7,6 +7,8 @@ import gradio as gr
 import numpy as np
 
 import ChatTTS
+from ChatTTS.core import PluginManager
+from ChatTTS.plugins.sample_plugin import SamplePlugin
 
 
 def generate_seed():
@@ -45,11 +47,16 @@ def generate_audio(text, temperature, top_P, top_K, audio_seed_input, text_seed_
                      params_infer_code=params_infer_code
                      )
     
+    # Utilize SamplePlugin for demonstrating plugin functionality
+    plugin_manager = PluginManager()
+    plugin_manager.register_plugin(SamplePlugin())
+    plugin_result = plugin_manager.execute_plugin("SamplePlugin", text, temperature, top_P, top_K, audio_seed_input, text_seed_input, refine_text_flag)
+    
     audio_data = np.array(wav[0]).flatten()
     sample_rate = 24000
     text_data = text[0] if isinstance(text, list) else text
 
-    return [(sample_rate, audio_data), text_data]
+    return [(sample_rate, audio_data), text_data, plugin_result]
 
 
 def main():
@@ -77,6 +84,7 @@ def main():
         
         text_output = gr.Textbox(label="Output Text", interactive=False)
         audio_output = gr.Audio(label="Output Audio")
+        plugin_output = gr.Textbox(label="Plugin Output", interactive=False)
 
         generate_audio_seed.click(generate_seed, 
                                   inputs=[], 
@@ -88,7 +96,7 @@ def main():
         
         generate_button.click(generate_audio, 
                               inputs=[text_input, temperature_slider, top_p_slider, top_k_slider, audio_seed_input, text_seed_input, refine_text_checkbox], 
-                              outputs=[audio_output, text_output])
+                              outputs=[audio_output, text_output, plugin_output])
 
     parser = argparse.ArgumentParser(description='ChatTTS demo Launch')
     parser.add_argument('--server_name', type=str, default='0.0.0.0', help='Server name')
